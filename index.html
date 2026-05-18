@@ -234,6 +234,14 @@
     .hero-title { font-size: 1.6rem; }
     .hero-tagline { font-size: 1rem; }
   }
+
+  body.narrow .feature-grid,
+  body.narrow .screenshot-row,
+  body.narrow .download-grid {
+    grid-template-columns: 1fr;
+  }
+  body.narrow .hero-title { font-size: 1.6rem; }
+  body.narrow .hero-tagline { font-size: 1rem; }
 </style>
 </head>
 <body>
@@ -354,5 +362,11 @@
   Service Management System v1.3.16 &middot; Tester distribution &middot; Not for public release
 </div>
 
+<script>
+  const ro = new ResizeObserver(entries => {
+    document.body.classList.toggle('narrow', entries[0].contentRect.width < 600);
+  });
+  ro.observe(document.body);
+</script>
 </body>
 </html>

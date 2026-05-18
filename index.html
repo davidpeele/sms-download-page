@@ -224,6 +224,16 @@
     padding: 20px 24px 32px;
     border-top: 1px solid #e9ecef;
   }
+
+  @media (max-width: 600px) {
+    .feature-grid,
+    .screenshot-row,
+    .download-grid {
+      grid-template-columns: 1fr;
+    }
+    .hero-title { font-size: 1.6rem; }
+    .hero-tagline { font-size: 1rem; }
+  }
 </style>
 </head>
 <body>

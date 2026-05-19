@@ -129,12 +129,74 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: zoom-in;
+    position: relative;
   }
   .screenshot-frame img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: opacity 0.15s;
+  }
+  .screenshot-frame:hover img { opacity: 0.88; }
+  .screenshot-frame::after {
+    content: '⤢';
+    position: absolute;
+    bottom: 8px;
+    right: 10px;
+    background: rgba(0,0,0,0.45);
+    color: #fff;
+    font-size: 0.85rem;
+    line-height: 1;
+    padding: 3px 6px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .screenshot-frame:hover::after { opacity: 1; }
+
+  /* Lightbox */
+  #lb-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+  }
+  #lb-overlay.open { display: flex; }
+  #lb-overlay img {
+    max-width: 92vw;
+    max-height: 92vh;
+    border-radius: 6px;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.6);
+    cursor: default;
+  }
+  #lb-close {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    color: #fff;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    opacity: 0.8;
+  }
+  #lb-close:hover { opacity: 1; }
+  #lb-label {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.75);
+    font-size: 0.9rem;
   }
   .screenshot-label {
     text-align: center;
@@ -343,11 +405,48 @@
   Service Management System v1.3.17 &middot; Tester distribution &middot; Not for public release
 </div>
 
+<!-- Lightbox -->
+<div id="lb-overlay" role="dialog" aria-modal="true">
+  <button id="lb-close" aria-label="Close">&times;</button>
+  <img id="lb-img" src="" alt="">
+  <div id="lb-label"></div>
+</div>
+
 <script>
   const ro = new ResizeObserver(entries => {
     document.body.classList.toggle('narrow', entries[0].contentRect.width < 600);
   });
   ro.observe(document.body);
+
+  // Lightbox
+  const overlay = document.getElementById('lb-overlay');
+  const lbImg   = document.getElementById('lb-img');
+  const lbLabel = document.getElementById('lb-label');
+
+  function openLightbox(src, alt) {
+    lbImg.src = src;
+    lbImg.alt = alt;
+    lbLabel.textContent = alt;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    lbImg.src = '';
+  }
+
+  document.querySelectorAll('.screenshot-frame').forEach(frame => {
+    frame.addEventListener('click', () => {
+      const img = frame.querySelector('img');
+      const label = frame.closest('div').querySelector('.screenshot-label');
+      openLightbox(img.src, label ? label.textContent : img.alt);
+    });
+  });
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeLightbox(); });
+  document.getElementById('lb-close').addEventListener('click', closeLightbox);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 </script>
 </body>
 </html>

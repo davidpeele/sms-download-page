@@ -62,9 +62,13 @@ ok "Docker Compose ready ($(docker compose version --short 2>/dev/null || echo o
 say "Setting up ${APP_DIR}…"
 mkdir -p "${DATA_DIR}/backups"
 
-# The Docker socket is mounted so the in-app "Update now" can pull
-# and recreate the container without SSH. Data + backups live on the host under
-# ${DATA_DIR} so they're easy to back up and survive image updates.
+# GID that owns the Docker socket — added to the (non-root) app user via group_add
+# so the in-app "Update now" can reach the socket.
+DOCKER_GID="$(stat -c %g /var/run/docker.sock 2>/dev/null || getent group docker 2>/dev/null | awk -F: '{print $3}')"
+
+# The Docker socket is mounted so the in-app "Update now" can pull and recreate the
+# container without SSH. Data + backups live on the host under ${DATA_DIR} so
+# they're easy to back up and survive image updates.
 cat > "${APP_DIR}/docker-compose.yml" <<EOF
 name: sms
 
@@ -77,6 +81,8 @@ services:
     volumes:
       - ${DATA_DIR}:/app/data
       - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - "${DOCKER_GID}"
     restart: unless-stopped
     labels:
       - com.centurylinklabs.watchtower.enable=true

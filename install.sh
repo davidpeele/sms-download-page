@@ -62,7 +62,7 @@ ok "Docker Compose ready ($(docker compose version --short 2>/dev/null || echo o
 say "Setting up ${APP_DIR}…"
 mkdir -p "${DATA_DIR}/backups"
 
-# The Docker socket is mounted read-only so a future in-app "Update now" can pull
+# The Docker socket is mounted so the in-app "Update now" can pull
 # and recreate the container without SSH. Data + backups live on the host under
 # ${DATA_DIR} so they're easy to back up and survive image updates.
 cat > "${APP_DIR}/docker-compose.yml" <<EOF
@@ -76,7 +76,7 @@ services:
       - "${PORT}:${PORT}"
     volumes:
       - ${DATA_DIR}:/app/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     labels:
       - com.centurylinklabs.watchtower.enable=true

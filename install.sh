@@ -61,6 +61,7 @@ ok "Docker Compose ready ($(docker compose version --short 2>/dev/null || echo o
 # ── 3. Lay down the app directory + compose file ─────────────────────────────
 say "Setting up ${APP_DIR}…"
 mkdir -p "${DATA_DIR}/backups"
+chown -R 1000:1000 "${DATA_DIR}"
 
 # GID that owns the Docker socket — added to the (non-root) app user via group_add
 # so the in-app "Update now" can reach the socket.
